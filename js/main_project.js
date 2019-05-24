@@ -49,6 +49,17 @@ function init(name,list) {
 	scene.background = new THREE.Color(0xa0a0a0);
 	//scene.fog = new THREE.Fog(0xa0a0a0, 200, 2000);
 
+	renderer = new THREE.WebGLRenderer({
+		antialias: true
+	});
+	renderer.setPixelRatio(window.devicePixelRatio);
+	renderer.setSize(width0, height0);
+	renderer.shadowMap.enabled = true;
+	container.appendChild(renderer.domElement);
+	renderer.domElement.addEventListener('mousedown', mousedown, false);
+	renderer.domElement.addEventListener('mousemove', mousemove, false);
+	renderer.domElement.addEventListener('mouseup', mouseup, false);
+
 	light = new THREE.HemisphereLight(0xffffff, 0x444444);
 	light.position.set(0, 200, 0);
 	scene.add(light);
@@ -61,7 +72,77 @@ function init(name,list) {
 	light.shadow.camera.left = -120;
 	light.shadow.camera.right = 120;
 	scene.add(light);
+
+	// Water
+
+	var waterGeometry = new THREE.PlaneBufferGeometry( 10000, 10000 );
+
+	water = new THREE.Water(
+		waterGeometry,
+		{
+			textureWidth: 512,
+			textureHeight: 512,
+			waterNormals: new THREE.TextureLoader().load( '../img/waternormals.jpg', function ( texture ) {
+
+				texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+
+			} ),
+			alpha: 0.9,
+			size: 0.1,
+			sunDirection: light.position.clone().normalize(),
+			sunColor: 0xffffff,
+			waterColor: 0x001e0f,
+			distortionScale: 3.7,
+			fog: scene.fog !== undefined
+		}
+	);
+
+	water.rotation.x = - Math.PI / 2;
+	console.log('water', water);
+	scene.add( water );
 	
+	// Skybox
+
+	var sky = new THREE.Sky();
+
+	var uniforms = sky.material.uniforms;
+
+	uniforms[ 'turbidity' ].value = 10;
+	uniforms[ 'rayleigh' ].value = 2;
+	uniforms[ 'luminance' ].value = 1;
+	uniforms[ 'mieCoefficient' ].value = 0.005;
+	uniforms[ 'mieDirectionalG' ].value = 0.8;
+
+	var parameters = {
+		distance: 400,
+		inclination: 0.44,
+		azimuth: 0.205
+	};
+
+	var cubeCamera = new THREE.CubeCamera( 0.1, 1, 512 );
+	cubeCamera.renderTarget.texture.generateMipmaps = true;
+	cubeCamera.renderTarget.texture.minFilter = THREE.LinearMipMapLinearFilter;
+
+	scene.background = cubeCamera.renderTarget;
+
+	function updateSun() {
+
+		var theta = Math.PI * ( parameters.inclination - 0.5 );
+		var phi = 2 * Math.PI * ( parameters.azimuth - 0.5 );
+
+		light.position.x = parameters.distance * Math.cos( phi );
+		light.position.y = parameters.distance * Math.sin( phi ) * Math.sin( theta );
+		light.position.z = parameters.distance * Math.sin( phi ) * Math.cos( theta );
+
+		sky.material.uniforms[ 'sunPosition' ].value = light.position.copy( light.position );
+		water.material.uniforms[ 'sunDirection' ].value.copy( light.position ).normalize();
+
+		cubeCamera.update( renderer, sky );
+
+	}
+
+	updateSun();
+
 
 	// ground
 	var mesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(2000, 2000), new THREE.MeshPhongMaterial({
@@ -75,20 +156,10 @@ function init(name,list) {
 	var grid = new THREE.GridHelper(2000, 20, 0x000000, 0x000000);
 	grid.material.opacity = 0.2;
 	grid.material.transparent = true;
-	scene.add(grid);
+	// scene.add(grid);
 
-	renderer = new THREE.WebGLRenderer({
-		antialias: true
-	});
-	renderer.setPixelRatio(window.devicePixelRatio);
-	renderer.setSize(width0, height0);
-	renderer.shadowMap.enabled = true;
-	container.appendChild(renderer.domElement);
-	window.addEventListener('resize', onWindowResize, false);
-	renderer.domElement.addEventListener('mousedown', mousedown, false);
-	renderer.domElement.addEventListener('mousemove', mousemove, false);
-	renderer.domElement.addEventListener('mouseup', mouseup, false);
 	
+	window.addEventListener('resize', onWindowResize, false);
 	
 	animate();
 	var data;
@@ -133,6 +204,9 @@ function init(name,list) {
 	
 	function animate() {
 		requestAnimationFrame(animate);
+
+		water.material.uniforms[ 'time' ].value += 5.0 / 60.0;
+
 		renderer.render(scene, camera);
 	}
     buildmodel(list);
@@ -362,7 +436,6 @@ function buildmodel(list) {
 			}
 		} else {
 			const range = `${parseInt(( rate * 100))}%`;
-			console.log('range', range);
 			$('#loading>.progress.load>.progress-bar').css('width', range).text(range);
 		}
 
