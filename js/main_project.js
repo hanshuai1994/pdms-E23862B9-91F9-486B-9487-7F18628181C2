@@ -98,7 +98,7 @@ function init(name,list) {
 	);
 
 	water.rotation.x = - Math.PI / 2;
-	console.log('water', water);
+	// console.log('water', water);
 	scene.add( water );
 	
 	// Skybox
