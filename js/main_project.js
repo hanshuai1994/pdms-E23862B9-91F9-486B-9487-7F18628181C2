@@ -151,7 +151,7 @@ function init(name,list) {
 	}));
 	mesh.rotation.x = -Math.PI / 2;
 	mesh.receiveShadow = true;
-	scene.add(mesh);
+	// scene.add(mesh);
 
 	var grid = new THREE.GridHelper(2000, 20, 0x000000, 0x000000);
 	grid.material.opacity = 0.2;
