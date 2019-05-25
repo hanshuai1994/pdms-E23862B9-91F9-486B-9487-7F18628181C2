@@ -77,29 +77,6 @@ body {
   cursor: pointer;
   z-index: 10;
 }
-#inquery_texture {
-  position: absolute;
-  right: 1%;
-  bottom: 1%;
-  width: 30%;
-  height: 33%;
-  background: #ededed;
-  display: none;
-  flex-wrap: wrap;
-  z-index: 101;
-}
-#inquery_texture img {
-  width: 38%;
-  height: 40%;
-  display: flex;
-  margin: 15px;
-}
-.closeX {
-  color: black;
-  font-size: 23px;
-  position: absolute;
-  right:10px;
-}
 #loading {
   position: fixed;
   top: 0;
@@ -370,18 +347,67 @@ a:focus {
   background-color: #fff;
   border-radius: 18px;
 }
-.mask-box.info-box {
-  width: 20%;
-  height: 30%;
+.mask-box.info-box,
+.mask-box.texture-box {
+  width: 250px;
+  height: auto;
   top: unset;
   left: unset;
-  right: 5%;
-  bottom: 10%;
+  right: 1%;
+  bottom: 40%;
   transform: translate(0, 0);
+}
+.mask-box.info-box.texture-box,
+.mask-box.texture-box.texture-box {
+  bottom: 2%;
+}
+.mask-box.info-box.texture-box > .content > .img-area,
+.mask-box.texture-box.texture-box > .content > .img-area {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.mask-box.info-box.texture-box > .content > .img-area > img,
+.mask-box.texture-box.texture-box > .content > .img-area > img {
+  display: flex;
+  width: 95px;
+  height: 80px;
+  margin: 5px;
+}
+.mask-box.info-box > .content,
+.mask-box.texture-box > .content {
+  padding: 20px;
+}
+.mask-box.info-box > .content > .line,
+.mask-box.texture-box > .content > .line {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+.mask-box.info-box > .content > .line > .label-w,
+.mask-box.texture-box > .content > .line > .label-w {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  width: 30%;
+  color: #484848;
+  padding-right: 8px;
+}
+.mask-box.info-box > .content > .line > .value,
+.mask-box.texture-box > .content > .line > .value {
+  display: flex;
+  align-items: center;
+  width: 70%;
+  overflow: hidden;
+}
+.mask-box.info-box > .content > .btn,
+.mask-box.texture-box > .content > .btn {
+  width: 100%;
 }
 .mask-box > .top {
   position: relative;
   height: 60px;
+  border-bottom: 1px solid #dddddd;
 }
 .mask-box > .top > .title {
   display: flex;

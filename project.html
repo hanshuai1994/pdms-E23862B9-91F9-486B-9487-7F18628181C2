@@ -29,8 +29,9 @@
 						<li class="dropdown-submenu export">
 							<a href="#">导出</a>
 							<ul class="dropdown-menu">
-								<li><a class="obj" data-key="obj" href="#">obj</a></li>
+								<li><a class="collada" data-key="collada" href="#">collada</a></li>
 								<li><a class="gltf" data-key="gltf" href="#">gltf</a></li>
+								<li><a class="obj" data-key="obj" href="#">obj</a></li>
 							</ul>
 						</li>
 					</ul>
@@ -100,28 +101,36 @@
 				<span class="close"></span>
 			</div>
 			<div class="content">
-				<div style="width:90%;float:left;font-size:large;padding-left:10px;margin-bottom: 10px;">名称:</div>
-				<div style="width:90%;float:left;font-size:large;padding-left:30px;margin-bottom: 10px;">0</div>
-				<div style="width:90%;float:left;font-size:large;padding-left:10px;margin-bottom: 10px">信息1:</div>
-				<div style="width:90%;float:left;font-size:large;padding-left:30px;margin-bottom: 10px">1</div>
-				<div style="width:90%;float:left;font-size:large;padding-left:10px;margin-bottom: 10px">信息2:</div>
-				<div style="width:90%;float:left;font-size:large;padding-left:30px;margin-bottom: 10px">2</div>
-				<div>
-					<button class='seleced-record-button' type="button" style="right: 12px;position: absolute; bottom: 2px;height:30px;width:70px">记录</button>
+				<div class="line line-name">
+					<span class="label-w">名称：</span>
+					<span class="value">000</span>
 				</div>
+				<div class="line line-info-1">
+					<span class="label-w">信息1：</span>
+					<span class="value">111</span>
+				</div>
+				<div class="line line-info-2">
+					<span class="label-w">信息2：</span>
+					<span class="value">222</span>
+				</div>
+				<div class="btn btn-info seleced-record-button">记录</div>
 			</div>
 		</div>
 		
 		
-		<div id="inquery_texture"     style="border-radius: 18px;">
-			<img src="img/silver.jpg">
-			<img src="img/stardust.jpg">
-			<img src="img/wood.jpg">
-			<img src="img/green.jpg">
-			<div class='closeX' style='font-family: "微软雅黑" ';>X</div>
-			
-			<div>
-				<button class='recover-color-button' type="button" style="right:34px;position: absolute; bottom: 2px;height:30px;width:70px">恢复</button>
+		<div id="inquery_texture" class="mask-box texture-box">
+			<div class="top">
+				<span class="title">替换材质</span>
+				<span class="close"></span>
+			</div>
+			<div class="content">
+				<div class="img-area">
+					<img src="img/silver.jpg">
+					<img src="img/stardust.jpg">
+					<img src="img/wood.jpg">
+					<img src="img/green.jpg">
+				</div>
+				<div class="btn btn-info seleced-color-button">恢复</div>
 			</div>
 		</div>
 	
@@ -163,8 +172,11 @@
 		<script src="./js/OrbitControls.js"></script>
 		<script src="./js/objects/Water.js"></script>
 		<script src="./js/objects/Sky.js"></script>
-		<script src="./js/OBJExporter.js"></script>
-		<script src="./js/GLTFExporter.js"></script>
+
+		<script src="./js/exporters/OBJExporter.js"></script>
+		<script src="./js/exporters/GLTFExporter.js"></script>
+		<script src="./js//exporters/ColladaExporter.js"></script>
+
 		<script src="./js/main_project.js"></script>
 	</body>
 
