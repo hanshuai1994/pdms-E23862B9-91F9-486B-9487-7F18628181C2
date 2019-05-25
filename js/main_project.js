@@ -1,3 +1,74 @@
+// ============================ dom事件绑定 ============================
+// 下拉菜单鼠标移入触发
+$(".menu-box").mouseover(function () {
+	$(this).addClass('open');
+	$(this).find('>.dropdown-btn').attr('aria-expanded', true);
+});
+// 下拉菜单鼠标移出触发
+$(".menu-box").mouseleave(function () {
+	$(this).removeClass('open');
+	$(this).find('>.dropdown-btn').attr('aria-expanded', false);
+});
+
+// 运维记录按钮
+$('#nav>.menu-area>.btn.operate').click(function() {
+	$('#mask').show();
+	$('.mask-box.operate-box').show();
+})
+// 帮助按钮
+$('#nav>.menu-area>.btn.help').click(function() {
+	$('#mask').show();
+	$('.mask-box.help-box').show();
+})
+
+// 弹窗关闭按钮绑定
+$('.mask-box>.top>.close, .mask-box>.top>.back').on('click', function() {
+	$('#mask').hide();
+	$(this).parents('.mask-box').hide();
+})
+
+// 视角切换菜单事件绑定
+$('#nav>.menu-area>.view-box>.dropdown-menu>li>a').click(function() {
+	const $this = $(this);
+	const $view = $this.parents('.dropdown-menu').siblings('.dropdown-btn');
+
+	const this_key = $this.attr('data-key');
+	const view_key = $view.attr('data-key');
+
+	const this_text = $this.text();
+	const view_text = $view.text();
+
+	// 交换文本与data-key属性
+	$this.text(view_text).attr('data-key', view_key);
+	$view.text(this_text).attr('data-key', this_key);
+	
+	console.log(this_key)
+	if(this_key=='first'){
+		camera.recordP = camera.position.clone()
+		camera.recordT = controls.target.clone()
+		controls.reset ()
+		if(controls.target.y==0){
+			controls.target.copy(controls.object.position)
+			controls.target.z--;
+			controls.update()
+		}
+		document.addEventListener('keydown', onKeyDown, false);
+		document.addEventListener('keyup', onKeyUp, false);
+		
+		
+	}else{
+		controls.saveState ()
+		camera.position.copy(camera.recordP )
+		controls.target.copy(camera.recordT)
+		controls.update()
+		
+		document.removeEventListener('keydown', onKeyDown, false);
+		document.removeEventListener('keyup', onKeyUp, false);
+		
+	}
+})
+
+
 var model;//模型本身
 
 //鼠标事件变量
@@ -15,15 +86,15 @@ console.log(projectname);
 var list=[];
 window.onload = function(event) {
 	init(name,list);
-	showarea.style.display = "block";
-	var lastDate = new Date();//获取系统当前时间
-	console.log("页面加载完成：" +  lastDate.toLocaleString());
+	// showarea.style.display = "block";
+	// var lastDate = new Date();//获取系统当前时间
+	// console.log("页面加载完成：" +  lastDate.toLocaleString());
 }
 
-var back = document.getElementById("back");
-back.onclick = function() {
-	window.location.href= "index.html";
-}
+// var back = document.getElementById("back");
+// back.onclick = function() {
+// 	window.location.href= "index.html";
+// }
 
 let water
 let renderer
@@ -34,10 +105,10 @@ let view_controller; //视角球控制
     let view_controller_renderer; //视角球控制
 function init(name,list) {
 	console.log('进入threejs场景init')
-	showarea.style.display = "block";
-	var biaoti = document.getElementById("biaoti");
+	// showarea.style.display = "block";
+	// var biaoti = document.getElementById("biaoti");
 	//console.log(name);
-	biaoti.innerHTML = name;
+	// biaoti.innerHTML = name;
 	var container = document.getElementById("container");
 
 	var left0 = window.innerHeight * 0.2;
@@ -208,12 +279,18 @@ function init(name,list) {
 			let intersect = raycaster.intersectObject(model,true);
 			if(intersect[0]){
 				console.log(intersect[0].object);
-				$('#inquery_texture').show()
-				
+				$('#inquery_texture').css('display', 'flex');
 				selected_mesh = intersect[0].object;
 				console.log(selected_mesh)
 				selected_mesh.material.emissiveIntensity = 1
 				selected_mesh.material.emissive.r = 1;
+				
+				let with_name_parent = selected_mesh;
+				while(with_name_parent.name==undefined){
+					with_name_parent = with_name_parent.parent;
+				}
+				
+				let result_name = with_name_parent.name;
 			}
 		}
 	}
@@ -316,8 +393,8 @@ function buildmodel(list) {
 	var loader = new THREE.FBXLoader();
 	var group = new THREE.Group();
 	group.name = name;
-	$('#loading').css("z-index",100);
-	$('#inquery_texture').hide();
+	// $('#loading').css("z-index",100);
+	// $('#inquery_texture').hide();
 
 	let solving = false; // 正在解析
 	loader.load('./model/'+projectname+'.toolkippdms',function(object){
@@ -445,7 +522,8 @@ function buildmodel(list) {
 		read_ztree(group.children[0],json_array,0);
 		console.log('目录树',json_array)
 		mulushu(json_array);
-		$('#loading').css("z-index",0);
+		// $('#loading').css("z-index",0);
+		$('#loading').hide();
 	},function ( xhr ) {
 		const rate = xhr.loaded / xhr.total;
 		if (rate > 0.9) {
@@ -595,8 +673,6 @@ $('.closeX').click(function(){
 	$('#inquery_texture').hide()
 })
 
-document.addEventListener('keydown', onKeyDown, false);
-document.addEventListener('keyup', onKeyUp, false);
 let moveForward = false;
 let moveBackward = false;
 let moveLeft = false;
