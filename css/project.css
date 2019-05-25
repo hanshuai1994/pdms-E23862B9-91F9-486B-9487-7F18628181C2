@@ -506,7 +506,6 @@ a:focus {
 }
 .mask-img > .img {
   height: calc(100% - 60px);
-  background-size: 100% 100% !important;
 }
 .mask-img > .img.img-type1 {
   background: url(../img/系统图.png) center no-repeat;
