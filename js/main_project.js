@@ -333,6 +333,10 @@ function init(name,list) {
 			mouse.y = -(event.offsetY / domElement.clientHeight) * 2 + 1;
 			raycaster.setFromCamera(mouse, controls.object);
 
+			//左侧目录树关联的变回去
+			for(let o of last_emissive_array)
+				o.material.emissive.r = 0
+				
 			if(selected_mesh)
 				selected_mesh.material.emissive.r = 0;
 			let intersect = raycaster.intersectObject(model,true);
@@ -344,12 +348,25 @@ function init(name,list) {
 				selected_mesh.material.emissiveIntensity = 1
 				selected_mesh.material.emissive.r = 1;
 				
+				$('.mask-box.info-box').show();
+				$('.mask-box.info-box').css('bottom','40%')
+				$('.mask-box.info-box').css('right','1%')
+				
 				let with_name_parent = selected_mesh;
-				while(with_name_parent.name==undefined){
+				while(with_name_parent.name==""){
+					console.log('循环一次')
 					with_name_parent = with_name_parent.parent;
 				}
 				
 				let result_name = with_name_parent.name;
+				console.log(result_name)
+				$('.mask-box.info-box .content div')[1].innerText = result_name
+
+				
+			}else{
+				
+				$('#inquery_texture').hide();
+				// $('.mask-box.info-box').hide();
 			}
 		}
 	}
@@ -415,6 +432,8 @@ function mulushu(list) {
 		for(let o of last_emissive_array)
 			o.material.emissive.r = 0
 		lightallchildren(model.getObjectByName(treeNode.name));
+		if(selected_mesh)
+			selected_mesh.material.emissive.r = 0;
 	}
 
 	function addSubNode(treeNode) {
@@ -485,6 +504,7 @@ function buildmodel(list) {
 
 	loader.load('./model/'+projectname+'.toolkippdms',function(object){
 		console.warn('模型加载成功')
+		create_view_controller()
 		update_view_controller()
 		model = object;
 		group.add(object)
@@ -862,7 +882,6 @@ var viewMovement = function () {
 	controls.target.addScaledVector(last_delta, 4);
 
 };
-create_view_controller()
 //建立视角球
 function create_view_controller() {
 	var camera, scene, renderer, light;
@@ -881,7 +900,6 @@ function create_view_controller() {
 	domElement.style.zIndex = 500;
 	
 	init();
-	// animate();
 
 	function init() {
 		console.log('开始创建视角球')
@@ -1133,12 +1151,19 @@ function create_view_controller() {
 }
 
 function update_view_controller() { //更新右上角视角球
-	console.log('更新右上角视角球')
+	// console.log('更新右上角视角球')
 	const distance = view_controller.minDistance;
 	let outTarget = controls.target;
 	let Distance = camera.position.distanceTo(outTarget)
 	view_controller.object.position.set(distance * ((camera.position.x - outTarget.x) / Distance), distance * ((camera.position.y - outTarget.y) / Distance), distance * ((camera.position.z - outTarget.z) / Distance))
 	view_controller.object.lookAt(0, 0, 0)
 
-	view_controller_renderer.out_render()
+	view_controller_renderer.out_render();
 }
+
+$('.seleced-record-button').click(function(){
+	$('.select-record').show()
+});
+$('.recover-color-button').click(function(){
+	selected_mesh.material.map = null;
+});

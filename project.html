@@ -9,8 +9,11 @@
 		<link rel="stylesheet" href="./css/bootstrap.min.css">
 		<link rel="stylesheet" href="./css/zTreeStyle/zTreeStyle.css">
 		<link rel="stylesheet" href="./css/project.css">
+		
+		<style>
+		</style>
 	</head>
-
+	
 	<body>
 		<nav id="nav">
 			<div class="logo-area">
@@ -94,21 +97,44 @@
 		</div>
 		<div class="mask-box info-box">
 			<div class="top">
-				<span class="title">信息</span>
+				<span class="title">元素信息</span>
 				<span class="close"></span>
 			</div>
-			<div class="content"></div>
+			<div class="content">
+				<div style="width:90%;float:left;font-size:large;padding-left:10px;margin-bottom: 10px;">名称:</div>
+				<div style="width:90%;float:left;font-size:large;padding-left:30px;margin-bottom: 10px;">0</div>
+				<div style="width:90%;float:left;font-size:large;padding-left:10px;margin-bottom: 10px">信息1:</div>
+				<div style="width:90%;float:left;font-size:large;padding-left:30px;margin-bottom: 10px">1</div>
+				<div style="width:90%;float:left;font-size:large;padding-left:10px;margin-bottom: 10px">信息2:</div>
+				<div style="width:90%;float:left;font-size:large;padding-left:30px;margin-bottom: 10px">2</div>
+				<div>
+					<button class='seleced-record-button' type="button" style="right: 12px;position: absolute; bottom: 2px;height:30px;width:70px">记录</button>
+				</div>
+			</div>
 		</div>
 		
 		
-		<div id="inquery_texture">
+		<div id="inquery_texture"     style="border-radius: 18px;">
 			<img src="img/silver.jpg">
 			<img src="img/stardust.jpg">
 			<img src="img/wood.jpg">
 			<img src="img/green.jpg">
-			<div class='closeX'>X</div>
+			<div class='closeX' style='font-family: "微软雅黑" ';>X</div>
+			
+			<div>
+				<button class='recover-color-button' type="button" style="right:34px;position: absolute; bottom: 2px;height:30px;width:70px">恢复</button>
+			</div>
 		</div>
 	
+		<!-- //选中元素并且点了右下角的记录 -->
+		<div class="mask-box operate-box select-record">
+			<div class="top">
+				<span class="back"></span>
+				<span class="title">记录</span>
+				<span class="close"></span>
+			</div>
+			<div class="content"></div>
+		</div>
 		<!-- <div id="showarea">
 			<div id="left">
 				<div id="top3">
@@ -125,14 +151,6 @@
 				
 			</div>
 		</div> -->
-		<div class="mask-box info-box">
-			<div class="top">
-				<span class="back"></span>
-				<span class="title">运维记录</span>
-				<span class="close"></span>
-			</div>
-			<div class="content"></div>
-		</div>
 		<!-- <script src="./js/zTree/jquery-1.4.4.min.js"></script> -->
 		<script src="./js/jquery.min.js"></script>
 		<script src="./js/zTree/jquery.ztree.core.js"></script>
