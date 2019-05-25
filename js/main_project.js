@@ -363,7 +363,7 @@ function init(name,list) {
 			}else{
 				
 				$('#inquery_texture').hide();
-				// $('.mask-box.info-box').hide();
+				$('.mask-box.info-box').hide();
 			}
 		}
 	}
@@ -523,6 +523,8 @@ function buildmodel(list) {
 			}
 		})
 		console.log(min.x,min.y,min.z,max.x,max.y,max.z);
+		var axesHelper = new THREE.AxesHelper( 50 );
+		scene.add( axesHelper );	
 		
 		let k_scale = 500/(max.y-min.y); 
 		k_scale/=1000;
@@ -1162,3 +1164,61 @@ $('.seleced-record-button').click(function(){
 $('.recover-color-button').click(function(){
 	selected_mesh.material.map = null;
 });
+
+let time = 1
+$('.explode').click(function(){
+	
+
+	scene.children[3].traverse(function(o){
+		if(o.geometry){
+			if(!o.geometry.boundingBox)				
+					o.geometry.computeBoundingBox()
+				
+			
+			let center = new THREE.Vector3()
+			o.geometry.boundingBox.getCenter(center)
+			o.geometry.bbox_center = center;
+		}
+	})
+	function expl(group,scale){
+		group.traverse(function(o){
+			if(o.geometry)
+				o.position.copy(o.geometry.bbox_center.multiplyScalar(scale))
+		})
+	};
+
+	var explode_interval =  setInterval(function(){
+		console.log('运行一次interval,time是',time)
+		time+=0.0002
+		expl(scene.children[3],time)
+		if(time>20)
+			clearInterval(explode_interval)
+	},20)
+		
+})
+
+// time = 0
+
+// scene.children[3].traverse(function(o){
+	// if(o.geometry){
+		// if(!o.geometry.boundingBox)				
+				// o.geometry.computeBoundingBox()
+			
+		
+		// let center = new THREE.Vector3()
+		// o.geometry.boundingBox.getCenter(center)
+		// o.geometry.bbox_center = center;
+	// }
+// })
+// function expl(group,scale){
+	// group.traverse(function(o){
+		// o.position.copy(o.geometry.bbox_center.multiplyScalar(scale))
+	// })
+// };
+
+// let explode_interval =  setInterval(function(){
+	// time+=0.01
+	// expl(scene.children[3],time)
+	// if(time>20)
+		// clearInterval(explode_interval)
+// },50)
