@@ -172,8 +172,6 @@ let out_controls;
 let view_controller; //视角球控制
     let view_controller_renderer; //视角球控制
 function init(name,list) {
-	$("#loading").hide();
-	return;
 	console.log('进入threejs场景init')
 	// showarea.style.display = "block";
 	// var biaoti = document.getElementById("biaoti");
