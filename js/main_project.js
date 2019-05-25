@@ -522,7 +522,6 @@ function buildmodel(list) {
 		read_ztree(group.children[0],json_array,0);
 		console.log('目录树',json_array)
 		mulushu(json_array);
-		// $('#loading').css("z-index",0);
 		$('#loading').hide();
 	},function ( xhr ) {
 		const rate = xhr.loaded / xhr.total;
