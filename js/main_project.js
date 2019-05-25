@@ -1169,8 +1169,23 @@ $('.recover-color-button').click(function(){
 });
 
 let time = 1
+let times = 0
+function expl(group,scale){
+	group.traverse(function(o){
+		if(o.geometry)
+			o.position.copy(o.geometry.bbox_center.multiplyScalar(scale))
+	})
+};
 $('.explode').click(function(){
+	if($('.explode').text()=='还原'){
+		time = 1
+		times = 0
+		explode_recover()
+		$('.explode').text('爆炸')
+		return
+	}
 	
+	$('.explode').hide();
 
 	scene.children[3].traverse(function(o){
 		if(o.geometry){
@@ -1183,45 +1198,23 @@ $('.explode').click(function(){
 			o.geometry.bbox_center = center;
 		}
 	})
-	function expl(group,scale){
-		group.traverse(function(o){
-			if(o.geometry)
-				o.position.copy(o.geometry.bbox_center.multiplyScalar(scale))
-		})
-	};
+	
 
 	var explode_interval =  setInterval(function(){
 		console.log('运行一次interval,time是',time)
-		time+=0.0002
+		time+=0.05
+		times ++;
 		expl(scene.children[3],time)
-		if(time>20)
+		if(times>5||time>1.25){
 			clearInterval(explode_interval)
-	},20)
+			$('.explode').text('还原')
+			$('.explode').show();
+		}
+	},500)
 		
 })
 
-// time = 0
-
-// scene.children[3].traverse(function(o){
-	// if(o.geometry){
-		// if(!o.geometry.boundingBox)				
-				// o.geometry.computeBoundingBox()
-			
-		
-		// let center = new THREE.Vector3()
-		// o.geometry.boundingBox.getCenter(center)
-		// o.geometry.bbox_center = center;
-	// }
-// })
-// function expl(group,scale){
-	// group.traverse(function(o){
-		// o.position.copy(o.geometry.bbox_center.multiplyScalar(scale))
-	// })
-// };
-
-// let explode_interval =  setInterval(function(){
-	// time+=0.01
-	// expl(scene.children[3],time)
-	// if(time>20)
-		// clearInterval(explode_interval)
-// },50)
+function explode_recover(){
+	expl(scene.children[3],0)
+	
+}
