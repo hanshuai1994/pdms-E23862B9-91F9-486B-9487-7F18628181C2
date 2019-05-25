@@ -229,7 +229,6 @@ a:focus {
 }
 #nav > .menu-area {
   display: flex;
-  width: 100%;
   padding-left: 6px;
 }
 #nav > .menu-area > .menu-box {
@@ -370,6 +369,15 @@ a:focus {
   height: 60%;
   background-color: #fff;
   border-radius: 18px;
+}
+.mask-box.info-box {
+  width: 20%;
+  height: 30%;
+  top: unset;
+  left: unset;
+  right: 5%;
+  bottom: 10%;
+  transform: translate(0, 0);
 }
 .mask-box > .top {
   position: relative;
