@@ -736,7 +736,6 @@ THREE.OrbitControls = function ( object, domElement ,rotate_callback) {
 	}
 
 	function onMouseMove( event ) {
-		console.warn('orbit_mousemove')
 
 		if ( scope.enabled === false ) return;
 
