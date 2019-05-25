@@ -330,6 +330,10 @@ function init(name,list) {
 			mouse.y = -(event.offsetY / domElement.clientHeight) * 2 + 1;
 			raycaster.setFromCamera(mouse, controls.object);
 
+			//左侧目录树关联的变回去
+			for(let o of last_emissive_array)
+				o.material.emissive.r = 0
+				
 			if(selected_mesh)
 				selected_mesh.material.emissive.r = 0;
 			let intersect = raycaster.intersectObject(model,true);
@@ -357,6 +361,7 @@ function init(name,list) {
 
 				
 			}else{
+				
 				$('#inquery_texture').hide();
 				// $('.mask-box.info-box').hide();
 			}
@@ -424,6 +429,8 @@ function mulushu(list) {
 		for(let o of last_emissive_array)
 			o.material.emissive.r = 0
 		lightallchildren(model.getObjectByName(treeNode.name));
+		if(selected_mesh)
+			selected_mesh.material.emissive.r = 0;
 	}
 
 	function addSubNode(treeNode) {
@@ -1146,5 +1153,12 @@ function update_view_controller() { //更新右上角视角球
 	view_controller.object.position.set(distance * ((camera.position.x - outTarget.x) / Distance), distance * ((camera.position.y - outTarget.y) / Distance), distance * ((camera.position.z - outTarget.z) / Distance))
 	view_controller.object.lookAt(0, 0, 0)
 
-	view_controller_renderer.out_render()
+	view_controller_renderer.out_render();
 }
+
+$('.seleced-record-button').click(function(){
+	$('.select-record').show()
+});
+$('.recover-color-button').click(function(){
+	selected_mesh.material.map = null;
+});
