@@ -322,7 +322,7 @@ a:focus {
   top: 79px;
   left: 278px;
   width: calc(100% - 278px);
-  width: calc(100% - 79px);
+  height: calc(100% - 79px);
 }
 #mask {
   z-index: 9999;
