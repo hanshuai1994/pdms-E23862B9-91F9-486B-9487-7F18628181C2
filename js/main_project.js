@@ -197,7 +197,9 @@ function init(name,list) {
 			if(intersect[0]){
 				console.log(intersect[0].object);
 				$('#inquery_texture').show()
+				selected_mesh.material.emissive.r = 0;
 				selected_mesh = intersect[0].object;
+				selected_mesh.material.emissive.r = 1;
 			}
 		}
 	}
