@@ -75,7 +75,8 @@ function init(name,list) {
 
 	// Water
 
-	var waterGeometry = new THREE.PlaneBufferGeometry( 10000, 10000 );
+	// var waterGeometry = new THREE.PlaneBufferGeometry( 10000, 10000 );
+	var waterGeometry = new THREE.CircleBufferGeometry( 100000, 32 );
 
 	water = new THREE.Water(
 		waterGeometry,
