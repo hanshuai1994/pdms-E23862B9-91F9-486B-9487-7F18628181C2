@@ -105,32 +105,32 @@ body {
     z-index: 10;
 }
 
-#inquery_texture {
-    position: absolute;
-    right: 1%;
-    bottom: 1%;
-    width: 30%;
-    height: 33%;
-    background: #ededed;
-    // display: flex;
-    display: none;
-    flex-wrap: wrap;
-    z-index: 101;
-}
+// #inquery_texture {
+//     position: absolute;
+//     right: 1%;
+//     bottom: 1%;
+//     width: 30%;
+//     height: 33%;
+//     background: #ededed;
+//     // display: flex;
+//     display: none;
+//     flex-wrap: wrap;
+//     z-index: 101;
+// }
 
-#inquery_texture img {
-    width: 38%;
-    height: 40%;
-    display: flex;
-    margin: 15px;
-}
+// #inquery_texture img {
+//     width: 38%;
+//     height: 40%;
+//     display: flex;
+//     margin: 15px;
+// }
 
-.closeX {
-    color: black;
-    font-size: 23px;
-    position: absolute;
-    right: 2px;
-}
+// .closeX {
+//     color: black;
+//     font-size: 23px;
+//     position: absolute;
+//     right: 2px;
+// }
 
 #loading {
     position: fixed;
@@ -494,19 +494,71 @@ a:focus {
 
     @topHeight: 60px;
 
-    &.info-box {
-        width: 20%;
-        height: 30%;
+    &.info-box,
+    &.texture-box {
+        width: 250px;
+        height: auto;
         top: unset;
         left: unset;
-        right: 5%;
-        bottom: 10%;
+        right: 1%;
+        bottom: 40%;
         transform: translate(0, 0);
+
+        &.texture-box {
+            bottom: 2%;
+
+            >.content {
+                >.img-area {
+                    display: flex;
+                    flex-wrap: wrap;
+                    margin-bottom: 10px;
+
+                    >img {
+                        display: flex;
+                        width: 95px;
+                        height: 80px;
+                        margin: 5px;
+                    }
+                }
+            }
+        }
+
+        >.content {
+            padding: 20px;
+
+            >.line {
+                display: flex;
+                align-items: center;
+                margin-bottom: 15px;
+
+                >.label-w {
+                    display: flex;
+                    justify-content: flex-end;
+                    align-items: center;
+                    width: 30%;
+                    color: #484848;
+                    padding-right: 8px;
+                }
+
+                >.value {
+                    display: flex;
+                    align-items: center;
+                    width: 70%;
+                    overflow: hidden;
+                }
+            }
+
+            >.btn {
+                width: 100%;
+            }
+        }
     }
+
 
     >.top {
         position: relative;
         height: @topHeight;
+        border-bottom: 1px solid #dddddd;
 
         >.title {
             display: flex;

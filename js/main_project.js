@@ -342,15 +342,13 @@ function init(name,list) {
 			let intersect = raycaster.intersectObject(model,true);
 			if(intersect[0]){
 				console.log(intersect[0].object);
-				$('#inquery_texture').css('display', 'flex');
+				$('#inquery_texture').show();
 				selected_mesh = intersect[0].object;
 				console.log(selected_mesh)
 				selected_mesh.material.emissiveIntensity = 1
 				selected_mesh.material.emissive.r = 1;
 				
 				$('.mask-box.info-box').show();
-				$('.mask-box.info-box').css('bottom','40%')
-				$('.mask-box.info-box').css('right','1%')
 				
 				let with_name_parent = selected_mesh;
 				while(with_name_parent.name==""){
@@ -360,7 +358,7 @@ function init(name,list) {
 				
 				let result_name = with_name_parent.name;
 				console.log(result_name)
-				$('.mask-box.info-box .content div')[1].innerText = result_name
+				$('.mask-box.info-box>.content>.line-name>.value').text(result_name);
 
 				
 			}else{
@@ -372,7 +370,10 @@ function init(name,list) {
 	}
 	var animate1 = animate;
 	
-    buildmodel(list);
+	buildmodel(list);
+	// $('#loading').hide();
+	// $('.info-box').show();
+	// $('#inquery_texture').show();
 }
 function animate() {
 	requestAnimationFrame(animate);
@@ -774,9 +775,6 @@ $('#inquery_texture img').click(function(){
 		selected_mesh.material.needsUpdate = true;
 		
 	})
-})
-$('.closeX').click(function(){
-	$('#inquery_texture').hide()
 })
 
 let moveForward = false;
