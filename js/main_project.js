@@ -69,59 +69,62 @@ $('#nav>.menu-area>.view-box>.dropdown-menu>li>a').click(function() {
 })
 
 
-// 下载模型
+// 下载gltf格式模型
 function downloadGLTF(model, fileName) {
-    var link = document.createElement('a');
-    link.style.display = 'none';
-    document.body.appendChild(link);
-
     const exporter = new THREE.GLTFExporter();
 
     exporter.parse(model, (result) => {
-        let blob;
-
         if (result instanceof ArrayBuffer) {
-            blob = new Blob([result], {
-                type: 'application/octet-stream'
-            })
-            link.download = fileName + '.glb';
+			downloadArrayBuffer(result, fileName + '.glb')
         } else {
             const text = JSON.stringify(result);
-
-            blob = new Blob([text], {
-                type: 'text/plain'
-            })
-
-            link.download = fileName + '.gltf';
+			downloadString(text, fileName + '.gltf')
         }
-
-        link.href = URL.createObjectURL(blob);
-
-        link.click();
     }, {
         binary: true
     })
 }
 
+// 下载obj格式模型
 function downloadOBJ(model, fileName) {
-    var link = document.createElement('a');
-    link.style.display = 'none';
-    document.body.appendChild(link);
-    
-
     const exporter = new THREE.OBJExporter();
 
     const result = exporter.parse(model);
     const text = JSON.stringify(result);
+	
+	downloadString(text, fileName + '.obj');
+}
 
-    const blob = new Blob([text], {
-        type: 'text/plain'
-    })
-	link.download = fileName + '.obj';
+// 下载collada模型
+function exportCollada(model, fileName) {
+	const exporter = new THREE.ColladaExporter();
+	
+	const result = exporter.parse( model );
+	downloadString( result.data, fileName + '.dae' );
+	result.textures.forEach( tex => {
+		downloadArrayBuffer( tex.data, `${ tex.name }.${ tex.ext }` );
+	});
+}
 
-    link.href = URL.createObjectURL(blob);
+// 以text形式下载
+function downloadString( text, filename ) {
+	downloadModel( new Blob( [ text ], { type: 'text/plain' } ), filename );
+}
 
-    link.click();
+// 以buffer形式下载
+function downloadArrayBuffer( buffer, filename ) {
+	downloadModel( new Blob( [ buffer ], { type: 'application/octet-stream' } ), filename );
+}
+
+// 下载模型
+function downloadModel( blob, filename ) {
+	const link = document.createElement( 'a' );
+	link.style.display = 'none';
+	document.body.appendChild( link );
+
+	link.href = URL.createObjectURL( blob );
+	link.download = filename;
+	link.click();
 }
 
 
@@ -455,24 +458,26 @@ function buildmodel(list) {
 	$('#nav>.menu-area>.file-box>ul>.export>ul>li>a').click(function() {
 		const this_key = $(this).attr('data-key');
 
+		let target = group;
+		let fileName = projectname;
+
 		if (selected_mesh) {
+			target = selected_mesh;
+
 			let with_name_parent = selected_mesh;
 			while(with_name_parent.name==''){
 				with_name_parent = with_name_parent.parent;
 			}
-			let result_name = with_name_parent.name;
 
-			if (this_key == 'obj') {
-				downloadOBJ(selected_mesh, result_name);
-			} else if (this_key == 'gltf') {
-				downloadGLTF(selected_mesh, result_name);
-			}
-		} else {
-			if (this_key == 'obj') {
-				downloadOBJ(group, projectname);
-			} else if (this_key == 'gltf') {
-				downloadGLTF(group, projectname);
-			}
+			fileName = with_name_parent.name;
+		}
+
+		if (this_key == 'obj') {
+			downloadOBJ(target, fileName);
+		} else if (this_key == 'gltf') {
+			downloadGLTF(target, fileName);
+		} else if (this_key == 'collada') {
+			exportCollada(target, fileName)
 		}
 	})
 
