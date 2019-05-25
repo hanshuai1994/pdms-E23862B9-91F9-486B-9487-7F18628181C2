@@ -299,7 +299,7 @@ function buildmodel(list) {
 	$('#inquery_texture').hide();
 
 	let solving = false; // 正在解析
-	loader.load('model/'+projectname+'.toolkippdms',function(object){
+	loader.load('../model/'+projectname+'.toolkippdms',function(object){
 		console.warn('模型加载成功')
 		model = object;
 		group.add(object)
