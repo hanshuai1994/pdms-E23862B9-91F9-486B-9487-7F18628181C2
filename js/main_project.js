@@ -529,8 +529,8 @@ function buildmodel(list) {
 			}
 		})
 		console.log(min.x,min.y,min.z,max.x,max.y,max.z);
-		var axesHelper = new THREE.AxesHelper( 50 );
-		scene.add( axesHelper );	
+		// var axesHelper = new THREE.AxesHelper( 50 );
+		// scene.add( axesHelper );	
 		
 		let k_scale = 500/(max.y-min.y); 
 		k_scale/=1000;
@@ -717,16 +717,19 @@ function getData(name){
 
 console.log($('#inquery_texture'))
 $('#inquery_texture img').click(function(){
-	$('#inquery_texture').hide()
 	console.log($(this)[0].src)
 	var texture = new THREE.TextureLoader().load($(this)[0].src,function(map){
 		
 		let g = selected_mesh.geometry;
+		let bbox_center = g.bbox_center;
 		if(!g.faceVertexUvs)
 			g= new THREE.Geometry().fromBufferGeometry(selected_mesh.geometry)
 		
 		console.log(g)
-		g.computeBoundingBox();
+		
+		if(!g.boundingBox)
+			g.computeBoundingBox();
+		
 		var box = g.boundingBox;
 		var detaX = box.max.x - box.min.x;
 		var detaY = box.max.y - box.min.y;
@@ -769,6 +772,7 @@ $('#inquery_texture img').click(function(){
 			}
 		}
 		g.uvsNeedUpdate = true;
+		g.bbox_center = bbox_center;
 		selected_mesh.geometry = g;
 		selected_mesh.geometry.needsUpdate = true;
 		console.log(map)
@@ -1185,8 +1189,6 @@ $('.explode').click(function(){
 		return
 	}
 	
-	$('.explode').hide();
-
 	scene.children[3].traverse(function(o){
 		if(o.geometry){
 			if(!o.geometry.boundingBox)				
@@ -1200,17 +1202,8 @@ $('.explode').click(function(){
 	})
 	
 
-	var explode_interval =  setInterval(function(){
-		console.log('运行一次interval,time是',time)
-		time+=0.05
-		times ++;
-		expl(scene.children[3],time)
-		if(times>5||time>1.25){
-			clearInterval(explode_interval)
-			$('.explode').text('还原')
-			$('.explode').show();
-		}
-	},500)
+	expl(scene.children[3],1.25)
+	$('.explode').text('还原')
 		
 })
 
