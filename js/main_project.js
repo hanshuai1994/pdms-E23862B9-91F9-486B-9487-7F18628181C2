@@ -78,58 +78,62 @@ $('#nav>.menu-area>.view-box>.dropdown-menu>li>a').click(function() {
 })
 
 
-// 下载模型
+// 下载gltf格式模型
 function downloadGLTF(model, fileName) {
-    var link = document.createElement('a');
-    link.style.display = 'none';
-    document.body.appendChild(link);
-
     const exporter = new THREE.GLTFExporter();
 
     exporter.parse(model, (result) => {
-        let blob;
-
         if (result instanceof ArrayBuffer) {
-            blob = new Blob([result], {
-                type: 'application/octet-stream'
-            })
-            link.download = fileName + '.glb';
+			downloadArrayBuffer(result, fileName + '.glb')
         } else {
             const text = JSON.stringify(result);
-
-            blob = new Blob([text], {
-                type: 'text/plain'
-            })
-
-            link.download = fileName + '.gltf';
+			downloadString(text, fileName + '.gltf')
         }
-
-        link.href = URL.createObjectURL(blob);
-
-        link.click();
     }, {
         binary: true
     })
 }
 
+// 下载obj格式模型
 function downloadOBJ(model, fileName) {
-    var link = document.createElement('a');
-    link.style.display = 'none';
-    document.body.appendChild(link);
-    link.download = fileName + '.obj';
-
     const exporter = new THREE.OBJExporter();
 
     const result = exporter.parse(model);
     const text = JSON.stringify(result);
+	
+	downloadString(text, fileName + '.obj');
+}
 
-    const blob = new Blob([text], {
-        type: 'text/plain'
-    })
+// 下载collada模型
+function exportCollada(model, fileName) {
+	const exporter = new THREE.ColladaExporter();
+	
+	const result = exporter.parse( model );
+	downloadString( result.data, fileName + '.dae' );
+	result.textures.forEach( tex => {
+		downloadArrayBuffer( tex.data, `${ tex.name }.${ tex.ext }` );
+	});
+}
 
-    link.href = URL.createObjectURL(blob);
+// 以text形式下载
+function downloadString( text, filename ) {
+	downloadModel( new Blob( [ text ], { type: 'text/plain' } ), filename );
+}
 
-    link.click();
+// 以buffer形式下载
+function downloadArrayBuffer( buffer, filename ) {
+	downloadModel( new Blob( [ buffer ], { type: 'application/octet-stream' } ), filename );
+}
+
+// 下载模型
+function downloadModel( blob, filename ) {
+	const link = document.createElement( 'a' );
+	link.style.display = 'none';
+	document.body.appendChild( link );
+
+	link.href = URL.createObjectURL( blob );
+	link.download = filename;
+	link.click();
 }
 
 
@@ -340,30 +344,44 @@ function init(name,list) {
 			mouse.y = -(event.offsetY / domElement.clientHeight) * 2 + 1;
 			raycaster.setFromCamera(mouse, controls.object);
 
+			//左侧目录树关联的变回去
+			for(let o of last_emissive_array)
+				o.material.emissive.r = 0
+				
 			if(selected_mesh)
 				selected_mesh.material.emissive.r = 0;
 			let intersect = raycaster.intersectObject(model,true);
 			if(intersect[0]){
 				console.log(intersect[0].object);
-				$('#inquery_texture').css('display', 'flex');
+				$('#inquery_texture').show();
 				selected_mesh = intersect[0].object;
 				console.log(selected_mesh)
 				selected_mesh.material.emissiveIntensity = 1
 				selected_mesh.material.emissive.r = 1;
 				
+				$('.mask-box.info-box').show();
+				
 				let with_name_parent = selected_mesh;
-				while(with_name_parent.name==undefined){
+				while(with_name_parent.name==""){
+					console.log('循环一次')
 					with_name_parent = with_name_parent.parent;
 				}
 				
 				let result_name = with_name_parent.name;
+				console.log(result_name)
+				$('.mask-box.info-box>.content>.line-name>.value').text(result_name);
+
+				
+			}else{
+				
+				$('#inquery_texture').hide();
+				$('.mask-box.info-box').hide();
 			}
 		}
 	}
 	var animate1 = animate;
 	
 	buildmodel(list);
-
 }
 function animate() {
 	requestAnimationFrame(animate);
@@ -423,6 +441,8 @@ function mulushu(list) {
 		for(let o of last_emissive_array)
 			o.material.emissive.r = 0
 		lightallchildren(model.getObjectByName(treeNode.name));
+		if(selected_mesh)
+			selected_mesh.material.emissive.r = 0;
 	}
 
 	function addSubNode(treeNode) {
@@ -466,12 +486,26 @@ function buildmodel(list) {
 	$('#nav>.menu-area>.file-box>ul>.export>ul>li>a').click(function() {
 		const this_key = $(this).attr('data-key');
 
-		console.log('this_key', this_key);
+		let target = group;
+		let fileName = projectname;
+
+		if (selected_mesh) {
+			target = selected_mesh;
+
+			let with_name_parent = selected_mesh;
+			while(with_name_parent.name==''){
+				with_name_parent = with_name_parent.parent;
+			}
+
+			fileName = with_name_parent.name;
+		}
 
 		if (this_key == 'obj') {
-			downloadOBJ(group, projectname);
+			downloadOBJ(target, fileName);
 		} else if (this_key == 'gltf') {
-			downloadGLTF(group, projectname);
+			downloadGLTF(target, fileName);
+		} else if (this_key == 'collada') {
+			exportCollada(target, fileName)
 		}
 	})
 
@@ -479,6 +513,7 @@ function buildmodel(list) {
 
 	loader.load('./model/'+projectname+'.toolkippdms',function(object){
 		console.warn('模型加载成功')
+		create_view_controller()
 		update_view_controller()
 		model = object;
 		group.add(object)
@@ -502,6 +537,8 @@ function buildmodel(list) {
 			}
 		})
 		console.log(min.x,min.y,min.z,max.x,max.y,max.z);
+		// var axesHelper = new THREE.AxesHelper( 50 );
+		// scene.add( axesHelper );	
 		
 		let k_scale = 500/(max.y-min.y); 
 		k_scale/=1000;
@@ -607,7 +644,7 @@ function buildmodel(list) {
 		const rate = xhr.loaded / xhr.total;
 		if (rate > 0.9) {
 			if (!solving) { // 若未进入处理状态
-				$('#loading>.text').text('处理中...');
+				$('#loading>.text').text('解析中...');
 				$('#loading>img').attr('src', './img/solving.gif')
 				$('#loading>.progress.load').hide();
 
@@ -688,16 +725,19 @@ function getData(name){
 
 console.log($('#inquery_texture'))
 $('#inquery_texture img').click(function(){
-	$('#inquery_texture').hide()
 	console.log($(this)[0].src)
 	var texture = new THREE.TextureLoader().load($(this)[0].src,function(map){
 		
 		let g = selected_mesh.geometry;
+		let bbox_center = g.bbox_center;
 		if(!g.faceVertexUvs)
 			g= new THREE.Geometry().fromBufferGeometry(selected_mesh.geometry)
 		
 		console.log(g)
-		g.computeBoundingBox();
+		
+		if(!g.boundingBox)
+			g.computeBoundingBox();
+		
 		var box = g.boundingBox;
 		var detaX = box.max.x - box.min.x;
 		var detaY = box.max.y - box.min.y;
@@ -740,6 +780,7 @@ $('#inquery_texture img').click(function(){
 			}
 		}
 		g.uvsNeedUpdate = true;
+		g.bbox_center = bbox_center;
 		selected_mesh.geometry = g;
 		selected_mesh.geometry.needsUpdate = true;
 		console.log(map)
@@ -749,9 +790,61 @@ $('#inquery_texture img').click(function(){
 		
 	})
 })
-$('.closeX').click(function(){
-	$('#inquery_texture').hide()
-})
+
+// 初始化文件树数据 （函数自动执行）
+;(function showDossierTree(){
+
+	$(".mask-box.dossier-box > .content.ztree").css("padding","30px 50px");
+
+	// 配置
+	let setting = {
+		data: {
+			simpleData: {
+				enable: true,
+				idKey: "id",
+				pIdKey: "pId",
+				rootPId: 0
+			}
+		},
+		callback: {
+			onClick: function(event, treeId, treeNode, clickFlag){
+				if(treeNode.pId == 0) return;
+				showMaskImg(treeNode.name,treeNode.pId);
+			},
+		}
+	};
+
+	// 节点数据
+	let treeNodes = [
+		{"id":1, "pId":0, "name":"系统图"},
+		{"id":2, "pId":0, "name":"平面图"},
+		{"id":3, "pId":0, "name":"文档"},
+
+		{"id":11, "pId":1, "name":"系统图1.dwg"},
+		{"id":12, "pId":1, "name":"系统图2.dwg"},
+		{"id":13, "pId":1, "name":"系统图3.dwg"},
+
+		{"id":21, "pId":2, "name":"平面图1.dwg"},
+		{"id":22, "pId":2, "name":"平面图2.dwg"},
+		{"id":23, "pId":2, "name":"平面图3.dwg"},
+
+		{"id":31, "pId":3, "name":"文档1.pdf"},
+		{"id":32, "pId":3, "name":"文档2.pdf"},
+		{"id":33, "pId":3, "name":"文档3.pdf"}
+	];
+
+	//初始化zTree 数据
+	$.fn.zTree.init($(".mask-box.dossier-box > .content.ztree"), setting, treeNodes);
+
+}());
+
+function showMaskImg(title,type){
+	$(".mask-img>.top>.title").html(title.substring(0,title.length-4));
+	$(".mask-img>.img").attr("class","img");
+	$(".mask-img>.img").addClass(`img-type${type}`);
+	$(".mask-img").show();
+
+};
 
 let moveForward = false;
 let moveBackward = false;
@@ -856,7 +949,6 @@ var viewMovement = function () {
 	controls.target.addScaledVector(last_delta, 4);
 
 };
-create_view_controller()
 //建立视角球
 function create_view_controller() {
 	var camera, scene, renderer, light;
@@ -875,7 +967,6 @@ function create_view_controller() {
 	domElement.style.zIndex = 500;
 	
 	init();
-	animate();
 
 	function init() {
 		console.log('开始创建视角球')
@@ -1127,7 +1218,7 @@ function create_view_controller() {
 }
 
 function update_view_controller() { //更新右上角视角球
-	console.log('更新右上角视角球')
+	// console.log('更新右上角视角球')
 	const distance = view_controller.minDistance;
 	let outTarget = controls.target;
 	let Distance = camera.position.distanceTo(outTarget)
@@ -1137,58 +1228,49 @@ function update_view_controller() { //更新右上角视角球
 	view_controller_renderer.out_render()
 }
 
-// 初始化文件树数据 （函数自动执行）
-;(function showDossierTree(){
+$('.seleced-record-button').click(function(){
+	$('.select-record').show()
+});
+$('.recover-color-button').click(function(){
+	selected_mesh.material.map = null;
+});
 
-	$(".mask-box.dossier-box > .content.ztree").css("padding","30px 50px");
-
-	// 配置
-	let setting = {
-		data: {
-			simpleData: {
-				enable: true,
-				idKey: "id",
-				pIdKey: "pId",
-				rootPId: 0
-			}
-		},
-		callback: {
-			onClick: function(event, treeId, treeNode, clickFlag){
-				if(treeNode.pId == 0) return;
-				showMaskImg(treeNode.name,treeNode.pId);
-			},
-		}
-	};
-
-	// 节点数据
-	let treeNodes = [
-		{"id":1, "pId":0, "name":"系统图"},
-		{"id":2, "pId":0, "name":"平面图"},
-		{"id":3, "pId":0, "name":"文档"},
-
-		{"id":11, "pId":1, "name":"系统图1.dwg"},
-		{"id":12, "pId":1, "name":"系统图2.dwg"},
-		{"id":13, "pId":1, "name":"系统图3.dwg"},
-
-		{"id":21, "pId":2, "name":"平面图1.dwg"},
-		{"id":22, "pId":2, "name":"平面图2.dwg"},
-		{"id":23, "pId":2, "name":"平面图3.dwg"},
-
-		{"id":31, "pId":3, "name":"文档1.pdf"},
-		{"id":32, "pId":3, "name":"文档2.pdf"},
-		{"id":33, "pId":3, "name":"文档3.pdf"}
-	];
-
-	//初始化zTree 数据
-	$.fn.zTree.init($(".mask-box.dossier-box > .content.ztree"), setting, treeNodes);
-
-}());
-
-function showMaskImg(title,type){
-	$(".mask-img>.top>.title").html(title.substring(0,title.length-4));
-	$(".mask-img>.img").attr("class","img");
-	$(".mask-img>.img").addClass(`img-type${type}`);
-	$(".mask-img").show();
-
+let time = 1
+let times = 0
+function expl(group,scale){
+	group.traverse(function(o){
+		if(o.geometry)
+			o.position.copy(o.geometry.bbox_center.multiplyScalar(scale))
+	})
 };
+$('.explode').click(function(){
+	if($('.explode').text()=='还原'){
+		time = 1
+		times = 0
+		explode_recover()
+		$('.explode').text('分解')
+		return
+	}
+	
+	scene.children[3].traverse(function(o){
+		if(o.geometry){
+			if(!o.geometry.boundingBox)				
+					o.geometry.computeBoundingBox()
+				
+			
+			let center = new THREE.Vector3()
+			o.geometry.boundingBox.getCenter(center)
+			o.geometry.bbox_center = center;
+		}
+	})
+	
 
+	expl(scene.children[3],1.25)
+	$('.explode').text('还原')
+		
+})
+
+function explode_recover(){
+	expl(scene.children[3],0)
+	
+}
