@@ -107,7 +107,7 @@ function downloadOBJ(model, fileName) {
     var link = document.createElement('a');
     link.style.display = 'none';
     document.body.appendChild(link);
-    link.download = fileName + '.obj';
+    
 
     const exporter = new THREE.OBJExporter();
 
@@ -117,6 +117,7 @@ function downloadOBJ(model, fileName) {
     const blob = new Blob([text], {
         type: 'text/plain'
     })
+	link.download = fileName + '.obj';
 
     link.href = URL.createObjectURL(blob);
 
@@ -454,12 +455,24 @@ function buildmodel(list) {
 	$('#nav>.menu-area>.file-box>ul>.export>ul>li>a').click(function() {
 		const this_key = $(this).attr('data-key');
 
-		console.log('this_key', this_key);
+		if (selected_mesh) {
+			let with_name_parent = selected_mesh;
+			while(with_name_parent.name==''){
+				with_name_parent = with_name_parent.parent;
+			}
+			let result_name = with_name_parent.name;
 
-		if (this_key == 'obj') {
-			downloadOBJ(group, projectname);
-		} else if (this_key == 'gltf') {
-			downloadGLTF(group, projectname);
+			if (this_key == 'obj') {
+				downloadOBJ(selected_mesh, result_name);
+			} else if (this_key == 'gltf') {
+				downloadGLTF(selected_mesh, result_name);
+			}
+		} else {
+			if (this_key == 'obj') {
+				downloadOBJ(group, projectname);
+			} else if (this_key == 'gltf') {
+				downloadGLTF(group, projectname);
+			}
 		}
 	})
 
@@ -863,7 +876,7 @@ function create_view_controller() {
 	domElement.style.zIndex = 500;
 	
 	init();
-	animate();
+	// animate();
 
 	function init() {
 		console.log('开始创建视角球')
