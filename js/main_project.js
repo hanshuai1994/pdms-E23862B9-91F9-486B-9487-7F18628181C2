@@ -1185,7 +1185,7 @@ $('.explode').click(function(){
 		time = 1
 		times = 0
 		explode_recover()
-		$('.explode').text('爆炸')
+		$('.explode').text('分解')
 		return
 	}
 	
