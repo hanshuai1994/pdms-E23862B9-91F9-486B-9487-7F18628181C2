@@ -417,6 +417,66 @@ a:focus {
 .mask-box > .content {
   height: calc(100% - 60px);
 }
+.mask-img {
+  z-index: 10001;
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  height: 90%;
+  background-color: #fff;
+  border-radius: 18px;
+}
+.mask-img > .top {
+  position: relative;
+  height: 60px;
+}
+.mask-img > .top > .title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  font-size: 14px;
+}
+.mask-img > .top > .back,
+.mask-img > .top > .close {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-repeat: no-repeat;
+  background-position: center;
+  cursor: pointer;
+}
+.mask-img > .top > .back.back,
+.mask-img > .top > .close.back {
+  width: 31px;
+  height: 30px;
+  left: 10px;
+  background-image: url(../img/icon/btn_back.png);
+}
+.mask-img > .top > .back.close,
+.mask-img > .top > .close.close {
+  width: 30px;
+  height: 30px;
+  right: 15px;
+  background-image: url(../img/icon/btn_cancel.png);
+}
+.mask-img > .img {
+  height: calc(100% - 60px);
+  background-size: 100% 100% !important;
+}
+.mask-img > .img.img-type1 {
+  background: url(../img/系统图.png) center no-repeat;
+}
+.mask-img > .img.img-type2 {
+  background: url(../img/平面图.png) center no-repeat;
+}
+.mask-img > .img.img-type3 {
+  background: url(../img/pdf图.png) center no-repeat;
+}
 ::-webkit-scrollbar {
   /*滚动条整体样式*/
   width: 7px;
