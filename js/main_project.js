@@ -636,7 +636,7 @@ function buildmodel(list) {
 		const rate = xhr.loaded / xhr.total;
 		if (rate > 0.9) {
 			if (!solving) { // 若未进入处理状态
-				$('#loading>.text').text('处理中...');
+				$('#loading>.text').text('解析中...');
 				$('#loading>img').attr('src', './img/solving.gif')
 				$('#loading>.progress.load').hide();
 
