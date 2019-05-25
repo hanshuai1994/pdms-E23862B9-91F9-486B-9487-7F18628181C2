@@ -44,6 +44,61 @@ $('#nav>.menu-area>.view-box>.dropdown-menu>li>a').click(function() {
 })
 
 
+// 下载模型
+function downloadGLTF(model, fileName) {
+    var link = document.createElement('a');
+    link.style.display = 'none';
+    document.body.appendChild(link);
+
+    const exporter = new THREE.GLTFExporter();
+
+    exporter.parse(model, (result) => {
+        let blob;
+
+        if (result instanceof ArrayBuffer) {
+            blob = new Blob([result], {
+                type: 'application/octet-stream'
+            })
+            link.download = fileName + '.glb';
+        } else {
+            const text = JSON.stringify(result);
+
+            blob = new Blob([text], {
+                type: 'text/plain'
+            })
+
+            link.download = fileName + '.gltf';
+        }
+
+        link.href = URL.createObjectURL(blob);
+
+        link.click();
+    }, {
+        binary: true
+    })
+}
+
+function downloadOBJ(model, fileName) {
+    var link = document.createElement('a');
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.download = fileName + '.obj';
+
+    const exporter = new THREE.OBJExporter();
+
+    const result = exporter.parse(model);
+    const text = JSON.stringify(result);
+
+    const blob = new Blob([text], {
+        type: 'text/plain'
+    })
+
+    link.href = URL.createObjectURL(blob);
+
+    link.click();
+}
+
+
 var model;//模型本身
 
 //鼠标事件变量
@@ -259,6 +314,7 @@ function init(name,list) {
 		renderer.render(scene, camera);
 	}
 	buildmodel(list);
+	// $('#loading').hide();
 }
 
 //提取信息生成目录树
@@ -346,8 +402,21 @@ function buildmodel(list) {
 	group.name = name;
 	// $('#loading').css("z-index",100);
 	// $('#inquery_texture').hide();
+	// 导出事件绑定
+	$('#nav>.menu-area>.file-box>ul>.export>ul>li>a').click(function() {
+		const this_key = $(this).attr('data-key');
+
+		console.log('this_key', this_key);
+
+		if (this_key == 'obj') {
+			downloadOBJ(group, projectname);
+		} else if (this_key == 'gltf') {
+			downloadGLTF(group, projectname);
+		}
+	})
 
 	let solving = false; // 正在解析
+
 	loader.load('./model/'+projectname+'.toolkippdms',function(object){
 		console.warn('模型加载成功')
 		model = object;
@@ -495,6 +564,7 @@ function buildmodel(list) {
 		// }
 
 	})
+
 	group.position.set(0, 0, 0);
 	scene.add(group);
 }
