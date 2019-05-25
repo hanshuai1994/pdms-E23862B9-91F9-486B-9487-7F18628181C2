@@ -10,6 +10,11 @@ $(".menu-box").mouseleave(function () {
 	$(this).find('>.dropdown-btn').attr('aria-expanded', false);
 });
 
+// 相关文件按钮
+$('#nav>.menu-area>.btn.dossier').click(function() {
+	$('#mask').show();
+	$('.mask-box.dossier-box').show();
+})
 // 运维记录按钮
 $('#nav>.menu-area>.btn.operate').click(function() {
 	$('#mask').show();
@@ -25,6 +30,10 @@ $('#nav>.menu-area>.btn.help').click(function() {
 $('.mask-box>.top>.close, .mask-box>.top>.back').on('click', function() {
 	$('#mask').hide();
 	$(this).parents('.mask-box').hide();
+})
+// 弹窗关闭按钮绑定
+$('.mask-img>.top>.close, .mask-img>.top>.back').on('click', function() {
+	$(this).parents('.mask-img').hide();
 })
 
 // 视角切换菜单事件绑定
@@ -375,9 +384,6 @@ function init(name,list) {
 	var animate1 = animate;
 	
 	buildmodel(list);
-	// $('#loading').hide();
-	// $('.info-box').show();
-	// $('#inquery_texture').show();
 }
 function animate() {
 	requestAnimationFrame(animate);
@@ -787,6 +793,61 @@ $('#inquery_texture img').click(function(){
 	})
 })
 
+// 初始化文件树数据 （函数自动执行）
+;(function showDossierTree(){
+
+	$(".mask-box.dossier-box > .content.ztree").css("padding","30px 50px");
+
+	// 配置
+	let setting = {
+		data: {
+			simpleData: {
+				enable: true,
+				idKey: "id",
+				pIdKey: "pId",
+				rootPId: 0
+			}
+		},
+		callback: {
+			onClick: function(event, treeId, treeNode, clickFlag){
+				if(treeNode.pId == 0) return;
+				showMaskImg(treeNode.name,treeNode.pId);
+			},
+		}
+	};
+
+	// 节点数据
+	let treeNodes = [
+		{"id":1, "pId":0, "name":"系统图"},
+		{"id":2, "pId":0, "name":"平面图"},
+		{"id":3, "pId":0, "name":"文档"},
+
+		{"id":11, "pId":1, "name":"系统图1.dwg"},
+		{"id":12, "pId":1, "name":"系统图2.dwg"},
+		{"id":13, "pId":1, "name":"系统图3.dwg"},
+
+		{"id":21, "pId":2, "name":"平面图1.dwg"},
+		{"id":22, "pId":2, "name":"平面图2.dwg"},
+		{"id":23, "pId":2, "name":"平面图3.dwg"},
+
+		{"id":31, "pId":3, "name":"文档1.pdf"},
+		{"id":32, "pId":3, "name":"文档2.pdf"},
+		{"id":33, "pId":3, "name":"文档3.pdf"}
+	];
+
+	//初始化zTree 数据
+	$.fn.zTree.init($(".mask-box.dossier-box > .content.ztree"), setting, treeNodes);
+
+}());
+
+function showMaskImg(title,type){
+	$(".mask-img>.top>.title").html(title.substring(0,title.length-4));
+	$(".mask-img>.img").attr("class","img");
+	$(".mask-img>.img").addClass(`img-type${type}`);
+	$(".mask-img").show();
+
+};
+
 let moveForward = false;
 let moveBackward = false;
 let moveLeft = false;
@@ -1166,7 +1227,7 @@ function update_view_controller() { //更新右上角视角球
 	view_controller.object.position.set(distance * ((camera.position.x - outTarget.x) / Distance), distance * ((camera.position.y - outTarget.y) / Distance), distance * ((camera.position.z - outTarget.z) / Distance))
 	view_controller.object.lookAt(0, 0, 0)
 
-	view_controller_renderer.out_render();
+	view_controller_renderer.out_render()
 }
 
 $('.seleced-record-button').click(function(){
