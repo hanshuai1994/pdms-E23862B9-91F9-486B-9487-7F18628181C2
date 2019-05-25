@@ -170,12 +170,14 @@ function init(name,list) {
 	// biaoti.innerHTML = name;
 	var container = document.getElementById("container");
 
-	var left0 = window.innerHeight * 0.2;
-	var width0 = window.innerWidth * 0.8;
-	var top0 = 44;
-	var height0 = window.innerHeight - 44;
+	// var left0 = window.innerHeight * 0.2;
+	// var width0 = window.innerWidth * 0.8;
+	// var top0 = 44;
+	// var height0 = window.innerHeight - 44;
+	const width = $('#container').width();
+	const height = $('#container').height();
 
-	camera = new THREE.PerspectiveCamera(45, width0 / height0, 1, 200000000);
+	camera = new THREE.PerspectiveCamera(45, width / height, 1, 200000000);
 	camera.position.set(100, 200, 300);
 	out_camera = camera
 	
@@ -192,7 +194,7 @@ function init(name,list) {
 		antialias: true
 	});
 	renderer.setPixelRatio(window.devicePixelRatio);
-	renderer.setSize(width0, height0);
+	renderer.setSize(width, height);
 	renderer.shadowMap.enabled = true;
 	container.appendChild(renderer.domElement);
 	renderer.domElement.addEventListener('mousedown', mousedown, false);
@@ -305,13 +307,15 @@ function init(name,list) {
 	var data;
 
 	function onWindowResize() {
-		var left0 = window.innerHeight * 0.2;
-		var width0 = window.innerWidth * 0.8;
-		var top0 = 44;
-		var height0 = window.innerHeight - 44;
-		camera.aspect = width0 / height0;
+		// var left0 = window.innerHeight * 0.2;
+		// var width0 = window.innerWidth * 0.8;
+		// var top0 = 44;
+		// var height0 = window.innerHeight - 44;
+		const width = $('#container').width();
+		const height = $('#container').height();
+		camera.aspect = width / height;
 		camera.updateProjectionMatrix();
-		renderer.setSize(width0, height0);
+		renderer.setSize(width, height);
 	}
 	function mousedown(){
 		mousedown = true;
