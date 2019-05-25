@@ -636,7 +636,7 @@ function buildmodel(list) {
 		const rate = xhr.loaded / xhr.total;
 		if (rate > 0.9) {
 			if (!solving) { // 若未进入处理状态
-				$('#loading>.text').text('处理中...');
+				$('#loading>.text').text('解析中...');
 				$('#loading>img').attr('src', './img/solving.gif')
 				$('#loading>.progress.load').hide();
 
@@ -1185,7 +1185,6 @@ $('.explode').click(function(){
 		return
 	}
 	
-	$('.explode').hide();
 
 	scene.children[3].traverse(function(o){
 		if(o.geometry){
@@ -1200,17 +1199,8 @@ $('.explode').click(function(){
 	})
 	
 
-	var explode_interval =  setInterval(function(){
-		console.log('运行一次interval,time是',time)
-		time+=0.05
-		times ++;
-		expl(scene.children[3],time)
-		if(times>5||time>1.25){
-			clearInterval(explode_interval)
+		expl(scene.children[3],1.25)
 			$('.explode').text('还原')
-			$('.explode').show();
-		}
-	},500)
 		
 })
 
