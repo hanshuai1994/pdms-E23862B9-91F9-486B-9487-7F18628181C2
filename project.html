@@ -12,7 +12,61 @@
 	</head>
 
 	<body>
-		
+		<nav id="nav">
+			<div class="logo-area">
+				<img src="./img/icon/logo.png" alt="">
+				<p>海上石油平台</p>
+			</div>
+			<div class="menu-area">
+				<div class="menu-box file-box">
+					<span class="dropdown-btn" data-toggle="dropdown">文件</span>
+					<ul class="dropdown-menu">
+						<li><a class="open" data-key="open" href="#">打开</a></li>
+						<li><a class="save" data-key="save" href="#">保存</a></li>
+						<li class="dropdown-submenu">
+							<a href="#">导出</a>
+							<ul class="dropdown-menu">
+								<li><a class="obj" data-key="obj" href="">obj</a></li>
+								<li><a class="gltf" data-key="gltf" href="">gltf</a></li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+				<div class="menu-box relation-box">
+					<span class="dropdown-btn" data-toggle="dropdown">关联文件</span>
+					<ul class="dropdown-menu">
+						<li><a class="system" href="#">系统图</a></li>
+						<li><a class="plan" href="#">平面图</a></li>
+						<li><a class="document" href="#">文档</a></li>
+					</ul>
+				</div>
+				<div class="menu-box view-box">
+					<span class="dropdown-btn" data-toggle="dropdown" data-key="first">第一人称</span>
+					<ul class="dropdown-menu">
+						<li><a class="open" data-key="third" href="#">第三人称</a></li>
+					</ul>
+				</div>
+				<div class="btn operate">运维记录</div>
+				<div class="btn help">帮助</div>
+			</div>
+			<div class="user-area">
+				<div class="btn_id">
+					<img src="./img/icon/btn_id.png" alt="">
+				</div>
+			</div>
+		</nav>
+		<div id="left-area">
+			<div class="search-area">
+				<div class="search-box">
+					<input type="text" placeholder="搜索">
+					<span class="search-btn"></span>
+				</div>
+			</div>
+			<div id="treebg" class="tree-area ztree"></div>
+		</div>
+		<div id="container"></div>
+
+
 		<div id="loading" class="active">
 			<img src="./img/loading.gif" alt="">
 			<p class="text">加载中...</p>
@@ -21,10 +75,22 @@
 			</div>
 		</div>
 
-		<!-- <div id="loading">
-			
-			<p id="loadingText">数据解析中</p>
-		</div> -->
+		<div id="mask"></div>
+		<div class="mask-box operate-box">
+			<div class="top">
+				<span class="back"></span>
+				<span class="title">运维记录</span>
+				<span class="close"></span>
+			</div>
+			<div class="content"></div>
+		</div>
+		<div class="mask-box help-box">
+			<div class="top">
+				<span class="title">帮助</span>
+				<span class="close"></span>
+			</div>
+			<div class="content"></div>
+		</div>
 		
 		<div id="inquery_texture">
 			<img src="img/silver.jpg">
@@ -34,7 +100,7 @@
 			<div class='closeX'>X</div>
 		</div>
 	
-		<div id="showarea">
+		<!-- <div id="showarea">
 			<div id="left">
 				<div id="top3">
 					<div id="stitle">中海油海上石油平台管理系统</div>
@@ -47,9 +113,9 @@
 					<div id="biaoti"></div>
 					<div id="back"></div>
 				</div>
-				<div id="container"></div>
+				
 			</div>
-		</div>
+		</div> -->
 		
 		<!-- <script src="./js/zTree/jquery-1.4.4.min.js"></script> -->
 		<script src="./js/jquery.min.js"></script>
