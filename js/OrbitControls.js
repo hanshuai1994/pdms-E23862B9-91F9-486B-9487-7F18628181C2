@@ -13,7 +13,7 @@
 //    Zoom - middle mouse, or mousewheel / touch: two-finger spread or squish
 //    Pan - right mouse, or left mouse + ctrl/meta/shiftKey, or arrow keys / touch: two-finger move
 
-THREE.OrbitControls = function ( object, domElement ) {
+THREE.OrbitControls = function ( object, domElement ,rotate_callback) {
 
 	this.object = object;
 
@@ -468,6 +468,9 @@ THREE.OrbitControls = function ( object, domElement ) {
 		rotateStart.copy( rotateEnd );
 
 		scope.update();
+		
+		if(rotate_callback)
+			rotate_callback();
 
 	}
 
@@ -733,6 +736,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 	}
 
 	function onMouseMove( event ) {
+		console.warn('orbit_mousemove')
 
 		if ( scope.enabled === false ) return;
 

@@ -25,6 +25,13 @@ back.onclick = function() {
 	window.location.href= "index.html";
 }
 
+let water
+let renderer
+let camera
+let out_camera;
+let out_controls;
+let view_controller; //视角球控制
+    let view_controller_renderer; //视角球控制
 function init(name,list) {
 	console.log('进入threejs场景init')
 	showarea.style.display = "block";
@@ -40,10 +47,12 @@ function init(name,list) {
 
 	camera = new THREE.PerspectiveCamera(45, width0 / height0, 1, 200000000);
 	camera.position.set(100, 200, 300);
-
-	controls = new THREE.OrbitControls(camera, container);
+	out_camera = camera
+	
+	controls = new THREE.OrbitControls(camera, container,update_view_controller);
 	controls.target.set(0, 100, 0);
 	controls.update();
+	out_controls = controls
 
 	scene = new THREE.Scene();
 	scene.background = new THREE.Color(0xa0a0a0);
@@ -76,7 +85,7 @@ function init(name,list) {
 	// Water
 
 	// var waterGeometry = new THREE.PlaneBufferGeometry( 10000, 10000 );
-	var waterGeometry = new THREE.CircleBufferGeometry( 100000, 32 );
+	var waterGeometry = new THREE.CircleBufferGeometry( 100000, 16 );
 
 	water = new THREE.Water(
 		waterGeometry,
@@ -194,25 +203,34 @@ function init(name,list) {
 			mouse.y = -(event.offsetY / domElement.clientHeight) * 2 + 1;
 			raycaster.setFromCamera(mouse, controls.object);
 
+			if(selected_mesh)
+				selected_mesh.material.emissive.r = 0;
 			let intersect = raycaster.intersectObject(model,true);
 			if(intersect[0]){
 				console.log(intersect[0].object);
 				$('#inquery_texture').show()
-				selected_mesh.material.emissive.r = 0;
+				
 				selected_mesh = intersect[0].object;
+				console.log(selected_mesh)
+				selected_mesh.material.emissiveIntensity = 1
 				selected_mesh.material.emissive.r = 1;
 			}
 		}
 	}
+	var animate1 = animate;
 	
-	function animate() {
-		requestAnimationFrame(animate);
+    buildmodel(list);
+}
+function animate() {
+	requestAnimationFrame(animate);
 
+	if(water)
 		water.material.uniforms[ 'time' ].value += 5.0 / 60.0;
 
+	if(renderer){
 		renderer.render(scene, camera);
+		viewMovement();
 	}
-    buildmodel(list);
 }
 
 //提取信息生成目录树
@@ -304,6 +322,7 @@ function buildmodel(list) {
 	let solving = false; // 正在解析
 	loader.load('./model/'+projectname+'.toolkippdms',function(object){
 		console.warn('模型加载成功')
+		update_view_controller()
 		model = object;
 		group.add(object)
 			//找到模型中心点，重新适配模型位置、相机位置、相机目标和control目标
@@ -575,3 +594,389 @@ $('#inquery_texture img').click(function(){
 $('.closeX').click(function(){
 	$('#inquery_texture').hide()
 })
+
+document.addEventListener('keydown', onKeyDown, false);
+document.addEventListener('keyup', onKeyUp, false);
+let moveForward = false;
+let moveBackward = false;
+let moveLeft = false;
+let moveRight = false;
+let moveUp = false;
+let moveDown = false;
+
+function onKeyDown(event) {
+
+	switch (event.keyCode) {
+
+		case 38: // up
+		case 87: // w
+			moveForward = true;
+			break;
+
+		case 37: // left
+		case 65: // a
+			moveLeft = true; break;
+
+		case 40: // down
+		case 83: // s
+			moveBackward = true;
+			break;
+
+		case 39: // right
+		case 68: // d
+			moveRight = true;
+			break;
+
+		case 82: // r
+			moveUp = true;
+			break;
+
+		case 70: // f
+			moveDown = true;
+			break;
+
+		// case 32: // space
+		//     if (canJump === true) velocity.y += 350;
+		//     canJump = false;
+		//     break;
+
+	}
+
+};
+function onKeyUp(event) {
+
+        switch (event.keyCode) {
+
+            case 38: // up
+            case 87: // w
+                moveForward = false;
+                break;
+
+            case 37: // left
+            case 65: // a
+                moveLeft = false;
+                break;
+
+            case 40: // down
+            case 83: // s
+                moveBackward = false;
+                break;
+
+            case 39: // right
+            case 68: // d
+                moveRight = false;
+                break;
+				
+			case 82: // r
+				moveUp = false;
+				break;
+
+			case 70: // f
+				moveDown = false;
+				break;
+
+        }
+
+    };
+	
+var viewMovement = function () {
+	// console.log('读取一次移动信息')
+		
+	let cameraP = camera.position;
+	let targetP = controls.target;
+	let camera_N = new THREE.Vector2(targetP.x - cameraP.x, targetP.z - cameraP.z);
+	camera_N.normalize();
+	let camera_right_N = camera_N.clone().rotateAround(new THREE.Vector2(0, 0), Math.PI * 0.5);
+
+
+	let up = Number(moveForward) - Number(moveBackward);
+	let right = Number(moveLeft) - Number(moveRight);
+
+	let last_delta = new THREE.Vector2().subVectors(camera_N.multiplyScalar(up), camera_right_N.multiplyScalar(right));
+
+	last_delta = new THREE.Vector3(last_delta.x, moveUp-moveDown, last_delta.y);
+
+	camera.position.addScaledVector(last_delta, 4);
+	controls.target.addScaledVector(last_delta, 4);
+
+};
+create_view_controller()
+//建立视角球
+function create_view_controller() {
+	var camera, scene, renderer, light;
+	var raycaster, mouse, controls;
+	var box;
+	const distance = 100; //相机距离远点距离
+	var is_have_move = false;
+	var domElement = document.createElement("canvas");
+		domElement.width = 120
+		domElement.height = 120
+	document.body.appendChild(domElement)
+	domElement.style.position = 'fixed';
+	domElement.style.top = '106px';
+	domElement.style.right = '14px';
+	domElement.style.right = '14px';
+	domElement.style.zIndex = 500;
+	
+	init();
+	animate();
+
+	function init() {
+		console.log('开始创建视角球')
+		scene = new THREE.Scene();
+
+		camera = new THREE.PerspectiveCamera(60, 1, 1, 2000);
+		camera.position.set(0, 100, 0);
+
+		// light = new THREE.PointLight( 0xffffff, 3, 230 );
+		// camera.add(light)
+		// scene.add(camera)
+
+		raycaster = new THREE.Raycaster();
+		mouse = new THREE.Vector2();
+
+		renderer = new THREE.WebGLRenderer({ canvas: domElement, antialias: true, alpha: true });
+		renderer.setSize(120, 120);
+		view_controller_renderer = renderer;
+		view_controller_renderer.out_render = function () { renderer.render(scene, camera); }
+
+		var geometry = new THREE.BoxGeometry(50, 50, 50)
+		var loader = new THREE.TextureLoader();
+		loader.setPath('./img/view_controller/')
+		var texture_arr = [];
+		var pic_src_arr = ['btn_right_normal.png', 'btn_left_normal.png', 'btn_up_normal.png', 'btn_behind_normal.png', 'btn_front_normal.png']
+		var pic_press_src_arr = ['btn_right_press.png', 'btn_left_press.png', 'btn_up_press.png', 'btn_behind_press.png', 'btn_front_press.png']
+
+		var counter = 0;
+		for (var i = 0; i < 5; i++) {
+			texture_arr.push(loader.load(pic_src_arr[i],
+				function () {
+					counter++;
+					if (counter == 5) {
+						renderer.render(scene, camera);
+					}
+				}))
+		}
+		const color = 0xeeeeee
+		var material = [
+			new THREE.MeshBasicMaterial({ map: texture_arr[0], color: color }),
+			new THREE.MeshBasicMaterial({ map: texture_arr[1], color: color }),
+			new THREE.MeshBasicMaterial({ map: texture_arr[2], color: color }),
+			new THREE.MeshBasicMaterial({ color: color }),
+			new THREE.MeshBasicMaterial({ map: texture_arr[4], color: color }),
+			new THREE.MeshBasicMaterial({ map: texture_arr[3], color: color })
+		]
+
+		var mesh = new THREE.Mesh(geometry, material);
+		box = mesh
+		// console.log(mesh)
+		scene.add(mesh);
+
+		var helper = generate_edgeHelper(geometry);
+		helper.position.copy(mesh.position)
+		mesh.add(helper);
+
+		function generate_edgeHelper(geo) {
+			var edges = new THREE.EdgesGeometry(geo);
+			var line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x000 }))
+
+			return line;
+		}
+
+
+		controls = new THREE.OrbitControls(camera, domElement, rotate_callBack);
+		view_controller = controls;
+		controls.maxPolarAngle = Math.PI * 0.5;
+		controls.enablePan = false
+		controls.minDistance = distance;
+		controls.maxDistance = distance;
+
+		domElement.addEventListener('mousedown', mousedown, false);
+	}
+
+	//视角球
+	function rotate_callBack() {
+		console.log('视角球旋转')
+
+		view_controller.object.lookAt(0, 0, 0)
+		renderer.render(scene, view_controller.object);
+		let outTarget = out_controls.target;
+		let Distance = out_camera.position.distanceTo(outTarget)
+		out_camera.position.set(outTarget.x + Distance * (view_controller.object.position.x / distance), outTarget.y + Distance * (camera.position.y / distance), outTarget.z + Distance * (camera.position.z / distance))
+		out_camera.lookAt(outTarget)
+	}
+
+	function mousedown() {
+		is_have_move = false;
+		domElement.addEventListener('mousemove', mousemove, false);
+		domElement.addEventListener('mouseup', mouseup, false);
+	}
+
+	function mousemove(event) {
+		is_have_move = true
+	}
+
+	function mouseup(event) {
+		if (!is_have_move) {
+			// console.log(event)
+			// console.log(event.offsetX 
+			mouse.x = (event.offsetX / domElement.clientWidth) * 2 - 1;
+			mouse.y = -(event.offsetY / domElement.clientHeight) * 2 + 1;
+			raycaster.setFromCamera(mouse, view_controller.object);
+
+			var intersect = raycaster.intersectObject(box);
+			console.log(11)
+			if (intersect[0]) {
+				console.log(22)
+				// var materialIndex = intersect[0].face.materialIndex;
+				// var position_record = view_controller.object.position.clone();
+				// var sphere = new THREE.Spherical().setFromVector3(view_controller.object.position)
+				// var delta;
+				// console.log(sphere)
+				// switch (materialIndex) {
+					// case 0: //右边 Math.PI/2  MAth.PI/2
+						// console.log('右')
+						// if (sphere.theta > Math.PI / 2 || sphere.theta < -Math.PI / 2) {
+							// delta = -0.02
+						// } else {
+							// delta = 0.02
+						// }
+						// var target = new THREE.Vector3(view_controller.maxDistance, 0, 0)
+						// var distance_last;
+						// var out = setInterval(function () {
+							// sphere.theta += delta;
+							// console.log('循环中')
+							// view_controller.object.position.copy(new THREE.Vector3().setFromSpherical(sphere))
+
+							// rotate_callBack()
+							// console.log(camera.position,camera.position.distanceTo(target))
+							// new_distance = view_controller.object.position.distanceTo(target)
+							// if (new_distance > distance_last) {
+								// console.log('循环终止')
+								// view_controller.object.position.copy(target)
+								// clearInterval(out)
+							// } else {
+								// distance_last = new_distance;
+							// }
+						// }, 16)
+						// break
+					// case 1: //左  -Math.PI/2  MAth.PI/2
+						// console.log('左')
+						// if (sphere.theta > Math.PI / 2 || sphere.theta < -Math.PI / 2) {
+							// delta = 0.02
+						// } else {
+							// delta = -0.02
+						// }
+						// var target = new THREE.Vector3(-controls.maxDistance, 0, 0)
+						// var distance_last;
+						// var out = setInterval(function () {
+							// sphere.theta += delta;
+							// console.log('循环中')
+							// view_controller.object.position.copy(new THREE.Vector3().setFromSpherical(sphere))
+
+							// rotate_callBack()
+							// console.log(camera.position,camera.position.distanceTo(target))
+							// new_distance = view_controller.object.position.distanceTo(target)
+							// if (new_distance > distance_last) {
+								// console.log('循环终止')
+								// view_controller.object.position.copy(target)
+								// clearInterval(out)
+							// } else {
+								// distance_last = new_distance;
+							// }
+						// }, 16)
+						// break
+					// case 2: //上  Math.PI/2 
+						// console.log('上')
+						// delta = 0.02
+						// var target = new THREE.Vector3(0, view_controller.maxDistance, 0).add(new THREE.Vector3(camera.position.x, 0, camera.position.z).normalize())
+						// var distance_last = view_controller.object.position.distanceTo(target);
+						// var out = setInterval(function () {
+							// sphere.phi -= delta;
+							// console.log('循环中')
+							// view_controller.object.position.copy(new THREE.Vector3().setFromSpherical(sphere))
+
+							// console.log(camera.position,camera.position.distanceTo(target))
+							// new_distance = view_controller.object.position.distanceTo(target)
+							// if (new_distance > distance_last) {
+								// console.log('循环终止')
+								// view_controller.object.position.copy(target)
+								// console.log(view_controller.object.position)
+								// clearInterval(out)
+							// } else {
+								// distance_last = new_distance;
+							// }
+							// rotate_callBack()
+						// }, 16)
+						// break
+					// case 3:
+						// break
+					// case 4: //前	Math.PI/2  0
+						// if (sphere.theta > 0) {
+							// delta = -0.02
+						// } else {
+							// delta = 0.02
+						// }
+						// var target = new THREE.Vector3(0, 0, controls.maxDistance).add(new THREE.Vector3(camera.position.x, 0, camera.position.z).normalize())
+						// var distance_last;
+						// var out = setInterval(function () {
+							// sphere.theta += delta;
+							// console.log('循环中')
+							// view_controller.object.position.copy(new THREE.Vector3().setFromSpherical(sphere))
+
+							// rotate_callBack()
+							// console.log(camera.position,camera.position.distanceTo(target))
+							// new_distance = view_controller.object.position.distanceTo(target)
+							// if (new_distance > distance_last) {
+								// console.log('循环终止')
+								// view_controller.object.position.copy(target)
+								// clearInterval(out)
+							// } else {
+								// distance_last = new_distance;
+							// }
+						// }, 16)
+						// break
+					// case 5: //后	Math.PI/2  Math.PI
+						// console.log('后')
+						// if (sphere.theta > 0) {
+							// delta = 0.02
+						// } else {
+							// delta = -0.02
+						// }
+						// var target = new THREE.Vector3(0, 0, -view_controller.maxDistance)
+						// var distance_last;
+						// var out = setInterval(function () {
+							// sphere.theta += delta;
+							// console.log('循环中')
+							// view_controller.object.position.copy(new THREE.Vector3().setFromSpherical(sphere))
+
+							// rotate_callBack()
+							// console.log(camera.position,camera.position.distanceTo(target))
+							// new_distance = view_controller.object.position.distanceTo(target)
+							// if (new_distance > distance_last) {
+								// console.log('循环终止')
+								// view_controller.object.position.copy(target)
+								// clearInterval(out)
+							// } else {
+								// distance_last = new_distance;
+							// }
+						// }, 16)
+						// break
+				// }
+			}
+			domElement.removeEventListener('mousemove', mousemove, false);
+			domElement.removeEventListener('mouseup', mouseup, false);
+		}
+	}
+}
+
+function update_view_controller() { //更新右上角视角球
+	console.log('更新右上角视角球')
+	const distance = view_controller.minDistance;
+	let outTarget = controls.target;
+	let Distance = camera.position.distanceTo(outTarget)
+	view_controller.object.position.set(distance * ((camera.position.x - outTarget.x) / Distance), distance * ((camera.position.y - outTarget.y) / Distance), distance * ((camera.position.z - outTarget.z) / Distance))
+	view_controller.object.lookAt(0, 0, 0)
+
+	view_controller_renderer.out_render()
+}
