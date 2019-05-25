@@ -361,17 +361,19 @@ a:focus {
 }
 .mask-box.info-box,
 .mask-box.texture-box {
+  z-index: 999;
   width: 250px;
   height: auto;
   top: unset;
-  left: unset;
-  right: 1%;
-  bottom: 40%;
+  left: 290px;
+  bottom: 60px;
   transform: translate(0, 0);
 }
 .mask-box.info-box.texture-box,
 .mask-box.texture-box.texture-box {
-  bottom: 2%;
+  left: unset;
+  right: 10px;
+  bottom: 10px;
 }
 .mask-box.info-box.texture-box > .content > .img-area,
 .mask-box.texture-box.texture-box > .content > .img-area {

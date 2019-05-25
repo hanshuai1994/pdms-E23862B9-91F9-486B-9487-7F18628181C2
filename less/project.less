@@ -514,16 +514,19 @@ a:focus {
 
     &.info-box,
     &.texture-box {
+        z-index: 999;
+
         width: 250px;
         height: auto;
         top: unset;
-        left: unset;
-        right: 1%;
-        bottom: 40%;
+        left: 290px;
+        bottom: 60px;
         transform: translate(0, 0);
 
         &.texture-box {
-            bottom: 2%;
+            left: unset;
+            right: 10px;
+            bottom: 10px;
 
             >.content {
                 >.img-area {
