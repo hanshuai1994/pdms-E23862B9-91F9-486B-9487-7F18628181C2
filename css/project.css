@@ -347,6 +347,18 @@ a:focus {
   background-color: #fff;
   border-radius: 18px;
 }
+.mask-box.operate-box > .content {
+  background-image: url(../img/management.png);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100%;
+}
+.mask-box.select-record > .content {
+  background-image: url(../img/detail.jpg);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100%;
+}
 .mask-box.info-box,
 .mask-box.texture-box {
   width: 250px;
